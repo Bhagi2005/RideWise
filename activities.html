@@ -1,23 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activities</title>
+    <title>RideWise - Activities</title>
     <link rel="stylesheet" href="vehicle.css">
 </head>
+
 <body>
+    <!-- Header Section -->
     <header>
-        <h1>Activities</h1>
+        <div class="logo-title">
+            <img src="logo.png" alt="Logo">
+            <h1>RideWise</h1>
+        </div>
+        <nav>
+            <a href="index.html" onclick="logActivity('Navigated to Home')">Home</a>
+            <a href="vehicle_cost.html" onclick="logActivity('Viewed Ride Cost Comparison')">Ride Cost Comparison</a>
+            <a href="activities.html" onclick="logActivity('Viewed Activities')">Activities</a>
+            <a href="sign_up.html" onclick="logActivity('Opened Sign Up Page')">Sign Up</a>
+            <a href="sign_in.html" onclick="logActivity('Opened Sign In Page')">Sign In</a>
+        </nav>
     </header>
 
+    <!-- Main Content -->
     <main>
         <h2>Recent Activities</h2>
-        <p>Here you can track all activities performed on the platform.</p>
+        <p>Track all activities performed on the platform.</p>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search activities...">
+            <button onclick="searchActivities()">Search</button>
+        </div>
+
+        <!-- Activity List -->
+        <section class="activities-list" id="activitiesList"></section>
     </main>
 
+    <!-- Footer Section -->
     <footer>
-        <p>&copy; 2024 Ride Cost Comparison</p>
+        <p>&copy; 2025 RideWise | All Rights Reserved</p>
     </footer>
+
+    <script>
+        function searchActivities() {
+            let searchValue = document.getElementById("search").value.toLowerCase();
+            let activities = document.querySelectorAll(".activity-card");
+
+            activities.forEach(activity => {
+                let text = activity.innerText.toLowerCase();
+                activity.style.display = text.includes(searchValue) ? "block" : "none";
+            });
+        }
+
+        function logActivity(description) {
+            let activities = JSON.parse(localStorage.getItem("activities")) || [];
+
+            const now = new Date();
+            const timestamp = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+
+            const newActivity = {
+                description: description,
+                timestamp: timestamp
+            };
+
+            activities.unshift(newActivity);
+            localStorage.setItem("activities", JSON.stringify(activities));
+
+            renderActivities();
+        }
+
+        function logRideSearch(start, destination, vehicle, cost) {
+            let rideSearches = JSON.parse(localStorage.getItem("rideSearches")) || [];
+
+            const now = new Date();
+            const timestamp = now.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+
+            const newSearch = {
+                start: start,
+                destination: destination,
+                vehicle: vehicle,
+                cost: cost,
+                timestamp: timestamp
+            };
+
+            rideSearches.unshift(newSearch);
+            localStorage.setItem("rideSearches", JSON.stringify(rideSearches));
+
+            renderActivities();
+        }
+
+        function renderActivities() {
+            const activitiesList = document.getElementById("activitiesList");
+            activitiesList.innerHTML = "";
+
+            const activities = JSON.parse(localStorage.getItem("activities")) || [];
+            const rideSearches = JSON.parse(localStorage.getItem("rideSearches")) || [];
+
+            activities.forEach(activity => {
+                const activityCard = document.createElement("div");
+                activityCard.className = "activity-card";
+                activityCard.innerHTML = `
+                    <h3>Activity</h3>
+                    <p>${activity.description}</p>
+                    <span>${activity.timestamp}</span>
+                `;
+                activitiesList.appendChild(activityCard);
+            });
+
+            rideSearches.forEach(search => {
+                const searchCard = document.createElement("div");
+                searchCard.className = "activity-card";
+                searchCard.innerHTML = `
+                    <h3>Ride Searched</h3>
+                    <p><strong>From:</strong> ${search.start}</p>
+                    <p><strong>To:</strong> ${search.destination}</p>
+                    <p><strong>Vehicle Type:</strong> ${search.vehicle}</p>
+                    <p><strong>Estimated Cost:</strong> ₹${search.cost}</p>
+                    <span>${search.timestamp}</span>
+                `;
+                activitiesList.appendChild(searchCard);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderActivities();
+            logActivity('Visited Activities Page');
+
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', () => logActivity(`Clicked button: ${button.innerText}`));
+            });
+
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => logActivity(`Navigated to: ${link.innerText}`));
+            });
+        });
+    </script>
 </body>
+
 </html>
